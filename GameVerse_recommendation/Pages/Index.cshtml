@@ -1,4 +1,4 @@
-﻿@page
+﻿@page "{currentpage:min(1)=1}"
 @model IndexModel
 
 @{
@@ -62,12 +62,21 @@
     </div>
     <div class="container-fluid" align="center">
         @{
-            int startPage = Model.CurrentPage / Model.TotalGamesOnPage * Model.TotalGamesOnPage + 1;
-            int endPage = startPage + Model.TotalGamesOnPage <= Model.PagesCount ? startPage + Model.TotalGamesOnPage : Model.PagesCount;
+            const int pagesVisible = 12;
+            int startPage = Model.CurrentPage;
+            int endPage = startPage + pagesVisible - 1 <= Model.PagesCount ? startPage + pagesVisible - 1 : Model.PagesCount;
+        }
+        @if (startPage > pagesVisible)
+        {
+            <a class="btn btn-link p-sm-1" asp-page="Index" asp-route-currentpage="@( pagesVisible * (startPage / pagesVisible - 1) + 1)">&lt;&lt;</a>
         }
         @for (int i = startPage; i <= endPage; i++)
         {
-            <a class="btn btn-link p-sm-1" asp-page-handler="ByPage" asp-route-page="@i">@i</a>
+            <a class="btn btn-link p-sm-1" asp-page="Index" asp-route-currentpage="@i">@i</a>
+        }
+        @if (endPage < Model.PagesCount)
+        {
+            <a class="btn btn-link p-sm-1" asp-page="Index" asp-route-currentpage="@(pagesVisible * (startPage / pagesVisible + 1) + 1)">&gt;&gt;</a>
         }
     </div>
 </div>

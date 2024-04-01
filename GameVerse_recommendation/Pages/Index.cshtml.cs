@@ -33,16 +33,12 @@ namespace GameVerse_recommendation.Pages
         public int TotalGamesOnPage { get; } = 12;
 
         public IReadOnlyList<GameDTO> Games { get; set; } = new List<GameDTO>();
-        public async Task OnGetAsync()
+
+        public async Task OnGetAsync(int currentPage)
         {
-
-            _ = this.User;
-            if (PagesCount == 0)
-            {
-                int gamesCount = await _context.Games.CountAsync();
-                PagesCount = gamesCount / TotalGamesOnPage;
-            }
-
+            int gamesCount = await _context.Games.CountAsync();
+            PagesCount = gamesCount / TotalGamesOnPage;
+            CurrentPage = currentPage;
             var player = await _userManager.FindByNameAsync(this.User.Identity!.Name!);
             if (player is null)
             {
@@ -51,7 +47,7 @@ namespace GameVerse_recommendation.Pages
 
             var playersGamesSet = player.IdGames.Select(p => p.Id).ToImmutableHashSet();
 
-            Games = await _context.Games.Take(TotalGamesOnPage).Select(x => new GameDTO
+            Games = await _context.Games.Skip((currentPage - 1) * TotalGamesOnPage).Take(TotalGamesOnPage).Select(x => new GameDTO
             {
                 Id = x.Id,
                 Name = x.Name,
@@ -65,10 +61,7 @@ namespace GameVerse_recommendation.Pages
             }).ToListAsync();
 
         }
-        public async Task OnGetByIdAsync(int id)
-        {
 
-        }
 
         public void OnPost()
         {
