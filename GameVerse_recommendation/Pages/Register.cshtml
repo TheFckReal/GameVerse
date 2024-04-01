@@ -1,0 +1,28 @@
+﻿@page
+@model GameVerse_recommendation.Pages.RegisterModel
+@{
+
+}
+
+<div class="container align-items-center align-bottom bg-body-tertiary">
+    <main class="form-signin m-auto">
+        <form method="post" asp-page="Register">
+            <h1 class="h3 mb-3 fw-normal">Пожалуйста, войдите в аккаунт</h1>
+
+            <div class="form-floating">
+                <input asp-for="NewUserData.Email" class="form-control">
+                <label asp-for="NewUserData.Email"></label>
+            </div>
+            <div class="form-floating">
+                <input asp-for="NewUserData.UserName" class="form-control"/>
+                <label asp-for="NewUserData.UserName"></label>
+            </div>
+            <div class="form-floating">
+                <input asp-for="NewUserData.Password" class="form-control">
+                <label asp-for="NewUserData.Password"></label>
+            </div>
+            <button class="btn btn-primary w-100 py-2" type="submit">Войти</button>
+        </form>
+        <div class="text-danger" asp-validation-summary="All"></div>
+    </main>
+</div>

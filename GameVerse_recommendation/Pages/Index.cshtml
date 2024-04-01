@@ -1,0 +1,74 @@
+﻿@page
+@model IndexModel
+
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<!-- Основная стройка страницы -->
+<div class="container-fluid position-relative">
+    <!-- Основная стройка страницы -->
+
+    <div class="row" id="main">
+        <div class="col-2 bd-sidebar" id="filters">
+            <aside class="sticky-top top-50">
+                <form asp-page="Index" method="post">
+                    <button id="showRecommendation" class="btn">Показать рекомендации</button>
+                </form>
+            </aside>
+        </div>
+        <!-- Элемент, в котором располагается список игр -->
+        <div class="col-9" id="games">
+            @for (int i = 0; i < Model.TotalGamesOnPage / 3; i++)
+            {
+                <div class="row" id="listgames">
+                    @for (int j = i * 3; j < 3 + 3 * i; j++)
+                    {
+                        var game = Model.Games[j];
+
+                        <div class="col-3 mx-1">
+                            <div class="card m-2 p-1" style="width: 18rem; height: 100%;">
+                                <img src="@game.ImageURL" class="card-img-top" alt="#">
+                                <div class="card-body">
+                                    <h5 class="card-title">@game.Name</h5>
+                                    <p class="card-text">Рейтинг: @game.Rating<br>Жанр: @game.Genre<br>Разработчик: @game.GameStudio<br />Издатель: @game.Publisher<br />@(game.Multiplayer ? "Многопользовательская" : "Одиночная")<br /><strong>Рейтинг: @game.Rating</strong></p>
+                                    <a href="#" class="btn btn-primary">Перейти</a>
+                                </div>
+                                <div class="card-footer">
+                                    <a class="btn btn-secondary" id="@game.Id" asp-for="@game.IsLikes">@(game.IsLikes ? "В любимом" : "Добавить в любимое")</a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            <script type="text/javascript">
+                $(document).ready(function () {
+                    $('.btn-secondary').click(async function () {
+                        // Ваш код здесь
+                        var button = $(this);
+                        var result = await fetch("/api/games/updatelikesgame/" + this.id).then(Response => Response.json()).then(data => {
+                            if (data['message']) {
+                                button.text('В любимом');
+                            } else {
+                                button.text('Добавить в любимое');
+                            }
+                        })
+                        
+                    });
+                });
+            </script>
+        </div>
+    </div>
+    <div class="container-fluid" align="center">
+        @{
+            int startPage = Model.CurrentPage / Model.TotalGamesOnPage * Model.TotalGamesOnPage + 1;
+            int endPage = startPage + Model.TotalGamesOnPage <= Model.PagesCount ? startPage + Model.TotalGamesOnPage : Model.PagesCount;
+        }
+        @for (int i = startPage; i <= endPage; i++)
+        {
+            <a class="btn btn-link p-sm-1" asp-page-handler="ByPage" asp-route-page="@i">@i</a>
+        }
+    </div>
+</div>
+
