@@ -26,7 +26,6 @@ namespace GameVerse_recommendation.Pages
             _userManager = userManager;
         }
 
-        private readonly ILogger<IndexModel> _logger;
         public bool IsRecommending { get; set; } = false;
         public int PagesCount { get; set; }
         public int CurrentPage { get; set; } = 1;

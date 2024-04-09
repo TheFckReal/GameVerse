@@ -63,7 +63,7 @@
     <div class="container-fluid" align="center">
         @{
             const int pagesVisible = 12;
-            int startPage = Model.CurrentPage;
+            int startPage = Model.CurrentPage / pagesVisible * pagesVisible + 1;
             int endPage = startPage + pagesVisible - 1 <= Model.PagesCount ? startPage + pagesVisible - 1 : Model.PagesCount;
         }
         @if (startPage > pagesVisible)
