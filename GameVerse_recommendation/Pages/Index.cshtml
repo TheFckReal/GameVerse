@@ -11,11 +11,12 @@
 
     <div class="row" id="main">
         <div class="col-2 bd-sidebar" id="filters">
-            <aside class="sticky-top top-50">
-                <form asp-page="Index" method="post">
-                    <button id="showRecommendation" class="btn">Показать рекомендации</button>
-                </form>
-            </aside>
+            @if (Model.IsRecommending)
+            {
+                <aside class="sticky-top top-50">
+                    <a type="submit" asp-page-handler="show" class="btn">Показать рекомендации</a>
+                </aside>
+            }
         </div>
         <!-- Элемент, в котором располагается список игр -->
         <div class="col-9" id="games">
@@ -54,7 +55,7 @@
                                 button.text('Добавить в любимое');
                             }
                         })
-                        
+
                     });
                 });
             </script>
