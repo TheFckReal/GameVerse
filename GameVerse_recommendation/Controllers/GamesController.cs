@@ -10,15 +10,10 @@ namespace GameVerse_recommendation.Controllers
     [Route("api/[controller]/[action]")]
     [ApiController]
     [Authorize]
-    public class GamesController : ControllerBase
+    public class GamesController(VideogameStoreContext context, UserManager<Player> userManager) : ControllerBase
     {
-        private readonly VideogameStoreContext _context;
-        private readonly UserManager<Player> _userManager;
-        public GamesController(VideogameStoreContext context, UserManager<Player> userManager)
-        {
-            _context = context;
-            _userManager = userManager;
-        }
+        private readonly VideogameStoreContext _context = context;
+        private readonly UserManager<Player> _userManager = userManager;
 
         [HttpGet("{id}")]
         public async Task<IActionResult> UpdateLikesGameAsync(int id)
@@ -30,9 +25,8 @@ namespace GameVerse_recommendation.Controllers
                 var user = await _userManager.FindByNameAsync(this.User.Identity!.Name!);
                 if (user is not null)
                 {
-                    if (user.IdGames.Contains(game))
+                    if (user.IdGames.Remove(game))
                     {
-                        user.IdGames.Remove(game);
                         isAdded = false;
                     }
                     else
