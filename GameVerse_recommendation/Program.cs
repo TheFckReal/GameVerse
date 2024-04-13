@@ -1,6 +1,10 @@
 using GameVerse_recommendation.Models;
+using GameVerse_recommendation.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Internal;
+using RabbitMQ.Client;
 
 namespace GameVerse_recommendation
 {
@@ -21,12 +25,25 @@ namespace GameVerse_recommendation
 
             });
 
+            // Configure Database
             builder.Services.AddDbContext<VideogameStoreContext>(options =>
             {
                 options.UseLazyLoadingProxies();
                 options.UseNpgsql(builder.Configuration.GetConnectionString("postgresql"));
             });
 
+            builder.Services.AddSingleton<RecommendationsCache>(provider => new RecommendationsCache
+                (
+                    new MemoryCacheOptions()
+                    {
+                        Clock = new SystemClock(),
+                        ExpirationScanFrequency = TimeSpan.FromDays(1),
+                        SizeLimit = 2048,
+                        CompactionPercentage = .25
+                    }
+                ));
+
+            // Configure Security
             builder.Services.AddIdentityCore<Player>(options =>
                 {
                     options.User.RequireUniqueEmail = true;
@@ -52,6 +69,18 @@ namespace GameVerse_recommendation
                 });
             });
 
+            builder.Services.AddSingleton<IConnectionFactory>(new ConnectionFactory()
+            {
+                HostName = "localhost",
+                Port = 5672,
+                UserName = builder.Configuration.GetValue<string>("Credentials:Rabbit:Username"),
+                Password = builder.Configuration.GetValue<string>("Credentials:Rabbit:Password"),
+                DispatchConsumersAsync = true
+            });
+            builder.Services.AddHostedService<RecommendationConsumerService>();
+
+
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -62,6 +91,7 @@ namespace GameVerse_recommendation
                 app.UseHsts();
             }
 
+            // Configure middleware
             app.UseHttpsRedirection();
 
             app.UseCookiePolicy();
